@@ -19,6 +19,9 @@ void PHMString::next(int nSamples) {
     
     const float* input = in(0);
     float* outbuf = out(0);
+    float sr = sampleRate();
+    float sr1 = 1.0/sr;
+    float nyq = sampleRate()*0.5f;
 
     // Control rate parameters
     const float gain = in0(1);
@@ -26,52 +29,41 @@ void PHMString::next(int nSamples) {
     const float d1 = in0(3);
     const float d2 = in0(4);
     const float disprs = in0(5);
-
-    const int nmodes = 80;
-    float dia = 0.0005f;
-    float length = 1.0f;
-    float L = sc_clip(length,0.0,1.0);
+    const float L = sc_clip(in0(6),0.01,2.0);
+    const float dia = in0(7);
+    const float posin = in0(8)*L;
+    const float posout = in0(9)*L;
+    const int nmodes_req = sc_clip(in0(10),1,gnmodesmax);
     float density = 6000.f;
-    float posin = 0.25*L;
-    float posout = 0.3*L;
-    float sr = sampleRate();
     float sigma = dia * dia * 0.25 * pi * density;
+    float b1c = sr1 * sr1 / sigma;
+    int nmodes = nmodes_req;
 
-	for (int i=0; i<nmodes; ++i) {
+	for (int i=0; i<nmodes_req; ++i) {
 		float g = (i+1) * pi / L;
 		float fc = f0 * (i+1); 
-		fc +=  disprs * g * g / ( 2*pi);
-		float b1,a1,a2,win,wout,cwin,cwout;
-		if (fc > maxfreq) {
+		fc +=  disprs * g * g / twopi;
+		float b1,a1,a2,win,wout;
+		if (fc > nyq) {
            // printf("fc exceeds maxfreq\n");
-			b1 = 0.f;
-			a1 = 0.f;
-			a2 = 0.f;
-			win=0.f;
-			wout=0.f;
-			cwin=0.f;
-			cwout=0.f;
-            _y1[i]=0.f;
-            _y2[i]=0.f;
+			nmodes=i;
+            break;
 		}
 		else{
 			float omega = fc * twopi;
 			float d = d1 + d2 * powf( fc / sr, 2 );
-			float Q = 0.5 / sc_clip(d,0.000001, 20.0);
-			float bw = fc / Q;
-			float r = expf(-twopi/sr*bw); 
-			a1 =  2.0 * r  * cosf( omega / sr );
+			float bw = twopi * fc / 0.5 * sc_clip(d,0.000001, 20.0);
+			float r = expf(-bw*sr1); 
+			a1 =  2.f * r  * cosf(omega*sr1);
 		    a2 = - r*r;
-		    b1 = 1.0 / (sr*sr) / sigma;
-			win =  2.0 / L * sinf( posin * g );
+			win =  2.f / L * sinf( posin * g );
     		wout =  sinf( posout * g );
-		}
+            b1 = b1c * win;
+        }
         _a1[i]=a1;
         _a2[i]=a2;
         _b1[i]=b1;
-        _win[i]=win;
-        _wout[i]=wout;
-        
+        _wout[i]=wout;    
         //printf("sr = %f \n",sr);
         //printf("L = %f \n",L);
         //printf("fc = %f \n",fc);
@@ -85,16 +77,13 @@ void PHMString::next(int nSamples) {
 
     for (int i = 0; i < nSamples; ++i) {
         float x = input[i];
-        float displ = 0; //  @ pickup position
+        float displ = 0;
         for (int n=0; n<nmodes; ++n) {
             float b1 = _b1[n];
             float a1 =  _a1[n];
             float a2 =  _a2[n];
-            float win = _win[n];
             float wout = _wout[n];
-            float cwout = _cwout[n];
-            float cwin = _cwin[n];
-            float y = b1 * ( win * x ) + a1 * _y1[n] + a2 * _y2[n];
+            float y = b1 * x + a1 * _y1[n] + a2 * _y2[n];
             _y2[n] = _y1[n];
             _y1[n] = y;
             displ += y * wout;
