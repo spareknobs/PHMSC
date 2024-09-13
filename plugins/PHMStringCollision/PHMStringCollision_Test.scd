@@ -1,34 +1,23 @@
 
-
+s.quit;
 s.boot;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 (
-SynthDef('cstr1',{
-	arg f0=100.0;
-	var trig = Impulse.ar(1);
-	var exc = EnvGen.ar(Env.perc(0.01,0.0,level:100,curve:1),trig);
-	var thres = LFNoise1.kr(2.0).range(-0.1,0.0).scope;
-	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, d1:0.001, d2:0.00001, stiff:0.5, thres:thres ).scope;
+{
+	var f0 = 520.0;
+	var trig = Impulse.ar(0.1); //Dust.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.0, 0.005,level:400,curve:-4),trig)*WhiteNoise.ar();
+	var thres = LFNoise2.kr(2.0).range(-0.0001,0.0001);
+	var pos = LFNoise2.kr(0.5).range(0.33,0.999);
+	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, d1:0.0002, d2:0.01, stiff:1.1, posIn:0.23, posOut:0.33, thres:thres ).scope;
 	out = LeakDC.ar(out);
 	Out.ar(0,[out,out]);
-}).add;
+}.play;
 )
 
-var cs = Synth.new(\cstr,[\f0,200]);
 
-(
-SynthDef('cstr2',{
-	arg f0=100.0;
-	var trig = Dust.ar(4);
-	var exc = EnvGen.ar(Env.perc(0.01,0.0,level:100,curve:1),trig).scope;
-	var thres = LFNoise2.kr(3.0).range(-0.1,0.1).scope;
-	var out = PHMStringCollision.ar( exc, gain:1, f0:200.0, d1:0.0005, d2:0.00001, stiff:0.9, thres:thres ).scope;
-	out = LeakDC.ar(out);
-	Out.ar(0,[out,out]);
-}).add;
-)
-
-var cs = Synth.new(\cstr2,[\f0,200]);
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 (
 {
 	var trig = Dust.ar(3);
