@@ -18,6 +18,15 @@ public:
     // ~PHMStringCollision();
 
 private:
+void computeStringModes( int& nmodes, 
+                                const float L,
+                                const float f0,
+                                const float disprs,
+                                const float sigma, 
+                                const float d1, 
+                                const float d2,
+                                const int nmodes_req);
+
     // Calc function
     void next(int nSamples);
 

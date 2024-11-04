@@ -1,16 +1,15 @@
 
 s.quit;
-s.boot;
-
+s.reboot;
+s.meter(0,2);
+s.scope();
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 (
 {
-	var f0 = 520.0;
-	var trig = Impulse.ar(0.1); //Dust.ar(0.3);
-	var exc = EnvGen.ar(Env.perc(0.0, 0.005,level:400,curve:-4),trig)*WhiteNoise.ar();
-	var thres = LFNoise2.kr(2.0).range(-0.0001,0.0001);
-	var pos = LFNoise2.kr(0.5).range(0.33,0.999);
-	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, d1:0.0002, d2:0.01, stiff:1.1, posIn:0.23, posOut:0.33, thres:thres ).scope;
+	var f0 = 1000.0;
+	var trig = Impulse.ar(0.4); //Dust.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.005, 0.001,level:100,curve:-4),trig);//*WhiteNoise.ar();
+	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, dispersion:10, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:2000, c_pos:LFNoise0.kr(29.8).range(0.2, 0.21).scope, nmodes: 100 );
 	out = LeakDC.ar(out);
 	Out.ar(0,[out,out]);
 }.play;
@@ -18,28 +17,40 @@ s.boot;
 
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Low rumbling
 (
 {
-	var trig = Dust.ar(3);
-	var exc = EnvGen.ar(Env.perc(0.01,0.0,level:100,curve:1),trig).scope;
-	var out = PHMStringCollision.ar( exc, gain:1, f0:100.0, d1:0.001, d2:0.00001, stiff:0.5, thres:-0.001 ).scope;
+	var f0 = 60.0;
+	var trig = Impulse.ar(0.4); //Dust.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.005, 0.001,level:100,curve:-4),trig);//*WhiteNoise.ar();
+	var out = PHMStringCollision.ar( exc, gain:0.5, f0:f0, length:1.0, dispersion:0.1, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:2000, c_pos:LFNoise0.kr(29.8).range(0.0, 1.0).scope, nmodes: 100 );
 	out = LeakDC.ar(out);
 	Out.ar(0,[out,out]);
 }.play;
 )
 
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// High warbling
 (
-SynthDef('cstr',{
-	var trig = Impulse.ar(1);
-	var exc = EnvGen.ar(Env.perc(0.01,0.0,level:100,curve:1),trig);
-	var thres = LFNoise1.kr(2.0).range(-0.1,0.0).scope;
-	var out = PHMStringCollision.ar( exc, gain:1, f0:100.0, d1:0.001, d2:0.00001, stiff:0.5, thres:thres ).scope;
+{
+	var f0 = 500.0;
+	var trig = Impulse.ar(0.4); //Dust.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.005, 0.001,level:100,curve:-4),trig);//*WhiteNoise.ar();
+	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, dispersion:0.1, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:3000, c_pos:LFNoise0.kr(30).range(0.0, 1.0).scope, nmodes: 100 );
 	out = LeakDC.ar(out);
 	Out.ar(0,[out,out]);
-}).add;
+}.play;
 )
 
-
-
-
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// warbles!!
+(
+{
+	var f0 = 200.0;
+	var trig = Impulse.ar(0.4); //Dust.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.005, 0.001,level:100,curve:-4),trig);//*WhiteNoise.ar();
+	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, dispersion:0, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:2000, c_pos:LFNoise0.kr(29.8).range(0.2, 0.21).scope, nmodes: 100 );
+	out = LeakDC.ar(out);
+	Out.ar(0,[out,out]);
+}.play;
+)
