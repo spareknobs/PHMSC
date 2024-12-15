@@ -26,20 +26,18 @@ private:
                             float* pB1, 
                             const float fmin,
                             const float fmax,
-                            const float detune,
                             const float d1,
                             const float d2,
+                            const float posin,
+                            const float cposin,
                             const int nmodes); 
-
 
     // Member variables
     float _b1[gnmodesmax];
     float _a1[gnmodesmax];
     float _a2[gnmodesmax];
     float _win[gnmodesmax];
-    float _wout[gnmodesmax];
     float _cwin[gnmodesmax];
-    float _cwout[gnmodesmax];
     float _y1[gnmodesmax];
     float _y2[gnmodesmax];
     float _cdispl{0.f};
@@ -47,7 +45,6 @@ private:
     float _fc[gnmodesmax];
     float _fmin{50};
     float _fmax{5000};
-
 };
 
 } // namespace PHMResonCollision

@@ -76,7 +76,7 @@ void PHMStringCollision::next(int nSamples) {
     float L = sc_clip(in0(3), 0.01, 10.0);
     const float d1 = sc_clip(in0(4), 0.0001, 100.0);
     const float d2 = sc_clip(in0(5), 0.f, 10.f);
-    const float disprs = sc_clip(in0(6), 0.f, 10.f );
+    const float disprs = sc_clip(in0(6), 0.f, 20.f );
     float posin = sc_clip(in0(7), 0.f, 1.f );
     float posout = sc_clip(in0(8), 0.f, 1.f);
     float cThres = sc_clip(in0(9), -10.f, -0.00001 );

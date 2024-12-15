@@ -7,8 +7,7 @@
 
 namespace PHMStringCollision {
 
-static const int gnmodesmax=100;
-static const float maxfreq = 12000.f;
+static const int gnmodesmax=200;
 
 class PHMStringCollision : public SCUnit {
 public:

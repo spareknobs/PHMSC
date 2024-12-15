@@ -9,7 +9,7 @@ s.scope();
 	var f0 = 1000.0;
 	var trig = Impulse.ar(0.4); //Dust.ar(0.3);
 	var exc = EnvGen.ar(Env.perc(0.005, 0.001,level:100,curve:-4),trig);//*WhiteNoise.ar();
-	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, dispersion:10, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:2000, c_pos:LFNoise0.kr(29.8).range(0.2, 0.21).scope, nmodes: 100 );
+	var out = PHMStringCollision.ar( exc, gain:1, f0:f0, length:1.0, dispersion:10, d1:0.00001, d2:0.00001, posIn:0.4, posOut:0.33, thres:-0.0001, c_stiff:2000, c_pos:0.2, nmodes: 100 );
 	out = LeakDC.ar(out);
 	Out.ar(0,[out,out]);
 }.play;
