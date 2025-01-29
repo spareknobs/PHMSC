@@ -7,8 +7,7 @@
 
 namespace PHMResonCollision {
 
-static const int gnmodesmax=100;
-static const float maxfreq = 12000.f;
+static const int gnmodesmax = 600;
 
 class PHMResonCollision : public SCUnit {
 public:
@@ -21,16 +20,14 @@ private:
     // Calc function
     void next(int nSamples);
 
-    void computeRandomModes( float* pA1, 
-                            float* pA2, 
-                            float* pB1, 
-                            const float fmin,
+    void computeRandomModes( const float fmin,
                             const float fmax,
                             const float d1,
                             const float d2,
                             const float posin,
                             const float cposin,
-                            const int nmodes); 
+                            const int nmodes,
+                            const float detune); 
 
     // Member variables
     float _b1[gnmodesmax];
@@ -45,6 +42,8 @@ private:
     float _fc[gnmodesmax];
     float _fmin{50};
     float _fmax{5000};
+    int _nmodes{0};
+    
 };
 
 } // namespace PHMResonCollision

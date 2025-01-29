@@ -1,0 +1,26 @@
+class:: PHMCoupledStrings
+summary:: colliding string
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+colliding string
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ PHMCoupledStrings.ar(/* TODO */) }.play
+
+::

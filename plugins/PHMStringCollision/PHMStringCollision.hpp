@@ -8,24 +8,14 @@
 namespace PHMStringCollision {
 
 static const int gnmodesmax=200;
+static const int gncollidersmax=20;
 
 class PHMStringCollision : public SCUnit {
 public:
     PHMStringCollision();
-
-    // Destructor
     // ~PHMStringCollision();
 
 private:
-void computeStringModes( int& nmodes, 
-                                const float L,
-                                const float f0,
-                                const float disprs,
-                                const float sigma, 
-                                const float d1, 
-                                const float d2,
-                                const int nmodes_req);
-
     // Calc function
     void next(int nSamples);
 
@@ -35,13 +25,14 @@ void computeStringModes( int& nmodes,
     float _a2[gnmodesmax];
     float _win[gnmodesmax];
     float _wout[gnmodesmax];
-    float _cwin[gnmodesmax];
-    float _cwout[gnmodesmax];
+    float _cwin[gncollidersmax][gnmodesmax];
+    float _cwout[gncollidersmax][gnmodesmax];
     float _y1[gnmodesmax];
     float _y2[gnmodesmax];
-    float _cdispl{0.f};
-    float _cvel{0.f};
-
+    float _cpos[gncollidersmax];
+    float _cdispl[gncollidersmax];
+    float _cpmax{-1};
+    int   _ncoll{0};
 };
 
 } // namespace PHMStringCollision

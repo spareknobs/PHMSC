@@ -1,0 +1,26 @@
+class:: PHMResonFriction
+summary:: bowed string model, from Demoucron
+related:: TODO
+categories:: UGens>TODO
+
+description::
+
+colliding string
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+{ PHMResonFriction.ar(/* TODO */) }.play
+
+::

@@ -1,0 +1,36 @@
+class:: PHMFlue1
+summary:: simple flue model
+related:: PHMString, PHMStringCollision
+categories:: UGens>Physical Modeling
+
+description::
+
+A simple flue model consisting of a nonlinear excitation mechanism and a modal resonator.
+
+Adapted from SDK::Blow by Perry R. Cook and Gary P. Scavone, 1995--2023. 
+
+
+classmethods::
+
+method::ar, kr
+
+argument::TODO
+
+argument::TODO
+
+
+examples::
+
+code::
+
+(
+{
+	var env = EnvGen.ar(Env.linen(0.1, 20, 2, level:1.0), gate:1, doneAction:2 ) + LFNoise1.kr(6).range(0,0.5);
+	var out = PHMFlue1.ar( env, gain:200, f0:380, dispersion:0,
+		d1:0.0001, d2:10, pressure:200, vibgain:0, noisegain:0.005, nmodes: 120 );
+	out = LeakDC.ar(out);
+	Out.ar(0,[out,out]);
+}.play;
+)
+
+::
