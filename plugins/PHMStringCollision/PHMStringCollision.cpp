@@ -1,16 +1,16 @@
 // PluginPHMStringCollision.cpp
-// rm (spare knobs@site.com)
 
 #include "PHMStringCollision.hpp"
-//#include "../utils.hpp"
 
 static InterfaceTable* ft;
 
 namespace PHMStringCollision {
 
-PHMStringCollision::PHMStringCollision() {
+PHMStringCollision::PHMStringCollision() : _rgen(*mParent->mRGen) {
     std::memset(_y1,0.f,sizeof(_y1));
     std::memset(_y2,0.f,sizeof(_y2));
+    std::memset(_mdispl,0.f,sizeof(_mdispl));
+    std::memset(_mvel,0.f,sizeof(_mvel));
     mCalcFunc = make_calc_function<PHMStringCollision, &PHMStringCollision::next>();
     next(1);
     printf("loading: PHMStringCollision v 0.2 \n");
@@ -41,6 +41,12 @@ void PHMStringCollision::next(int nSamples) {
     const int nmodes_req = in0(13);
     const int ncoll = sc_clip( in0(14),0,gncollidersmax);
     const int randp = in0(15);
+    const bool rigid = (bool)in0(16);
+    const float mmass = sc_clip( in0(17), 0.00001f, 10.f );
+    const float mK = sc_clip( in0(18), 0.f, 1e5f );
+    const float mD = sc_clip( in0(19), 0.f, 1.f );
+    const float mVar = sc_clip( in0(20), 0.f, 1.f );
+
     float dia = 0.0005f;
     float density = 6000.f;
     float sigma = dia * dia * 0.25 * pi * density;
@@ -50,7 +56,26 @@ void PHMStringCollision::next(int nSamples) {
     float f3 = powf( d1 / (2*sigma),2 );
     float sigma1 = 1.f / sigma;
     float fac = 2.f / L;
-    
+
+    if (rigid){
+        std::memset(_mdispl, 0, sizeof(_mdispl));
+        std::memset(_mvel, 0, sizeof(_mvel));
+        std::memset(_mass, 1.f, sizeof(_mass));
+        std::memset(_mstiff, 0,sizeof(_mstiff));
+        std::memset(_mdamp, 0, sizeof(_mdamp));
+    }
+
+    if (mVar != _mvar){
+        _mvar = mVar;
+        for (int c=0; c < ncoll; ++c) {
+            _mstiff[c] = mK * ( 1.f - mVar + _rgen.frand() * 2 * mVar );
+            _mdamp[c] = mD  * ( 1.f - mVar + _rgen.frand() * 2 * mVar );
+            _mass[c] = mmass * ( 1.f - mVar + _rgen.frand() * 2 * mVar );
+            //printf("stiff: %f \t", _mstiff[c]);
+        }
+        //printf("\n");
+    }
+        
     // update collision pos only when param changes, unless 'rand' flag is 1
     // in that case, the collision positions change randomly runtime in the given range
     if ( randp || ( cpmax !=_cpmax || ncoll != _ncoll ) ){
@@ -60,12 +85,13 @@ void PHMStringCollision::next(int nSamples) {
         for (int c=0; c < ncoll; ++c) {
             float rnd = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
             _cpos[c] = cpmin + rnd * (cpmax - cpmin);
-            //printf(" %f \t", _cpos[c]);
+           // printf("cpos: %f \t", _cpos[c]);
         }
         //printf("\n");
     }
 
     for (int i=0; i < nmodes_req; ++i) {
+
         float b1,a1,a2,win,wout,cwin,cwout;
         float g = (i+1) * pi / L;
         float omega = sqrt(  disprs * g * g * g * g + f2 * g * g - f3 );
@@ -93,28 +119,44 @@ void PHMStringCollision::next(int nSamples) {
             }
         }
     }
+
 // for (int i=0; i < 10; ++i) {
 //     for (int c=0; c < ncoll; ++c) {
 //     printf(" %f \t", _cwin[c][i]);
 //     }
 //     printf("\n");
 // }
-    int vs=nSamples;
+
+    //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    // sample-rate process
+    int vs = nSamples;
     const float* vpin = input;
     float* vpout = outbuf;
     do {
         float x = *vpin++;
-        float displ = 0; //  @ pickup position
-        float fc[ncoll]; // visco-elastic collision
+        
+        // collision forces
+        float fc[ncoll]; 
         std::memset(fc,0.f,sizeof(fc));
         for (int c=0; c < ncoll; ++c) {
-            float vdelta = cThres - _cdispl[c];
-            if ( vdelta > 0 ){
-                fc[c] = vdelta * cK;
+            float vdelta = _mdispl[c] + cThres - _cdispl[c];
+            if ( vdelta > 0 ){  // colliders are placed below the string
+                fc[c] = vdelta * cK; // force is upwards
             }
         }
-        std::memset(_cdispl,0.f,sizeof(_cdispl));
 
+        // update masses
+        if (rigid==false){
+            for (int c=0; c < ncoll; ++c) {
+                    float fsum = - _mstiff[c] * _mdispl[c] - _mvel[c] * _mdamp[c] - fc[c];
+                    _mvel[c] += sr1 / _mass[c] * fsum;
+                    _mdispl[c] += sr1  * _mvel[c];
+                    _mdispl[c] = sc_clip(_mdispl[c], -1.f, 1.0);
+                }
+        }
+
+        std::memset(_cdispl,0.f,sizeof(_cdispl));
+        float displ = 0; //  @ pickup position
         for (int n=0; n<nmodes; ++n) {
             float b1 = _b1[n];
             float a1 =  _a1[n];
@@ -136,6 +178,8 @@ void PHMStringCollision::next(int nSamples) {
              }
         }
         *vpout++ = zapgremlins(displ) * gain;
+        //*vpout++ = zapgremlins(_mdispl[0]) * gain;
+
     } while (--vs);
 }
 

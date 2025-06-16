@@ -4,6 +4,8 @@
 #pragma once
 
 #include "SC_PlugIn.hpp"
+#define VERSION 0.1
+#define OPTIMIZE_LOOP 0  // Set to 1 to enable loop optimization, 0 to disable
 
 namespace PHMResonCollision {
 
@@ -30,20 +32,19 @@ private:
                             const float detune); 
 
     // Member variables
-    float _b1[gnmodesmax];
-    float _a1[gnmodesmax];
-    float _a2[gnmodesmax];
-    float _win[gnmodesmax];
-    float _cwin[gnmodesmax];
-    float _y1[gnmodesmax];
-    float _y2[gnmodesmax];
+    alignas(16) float _fc[gnmodesmax];
+    alignas(16) float _b1[gnmodesmax];
+    alignas(16) float _a1[gnmodesmax];
+    alignas(16) float _a2[gnmodesmax];
+    alignas(16) float _win[gnmodesmax];
+    alignas(16) float _cwin[gnmodesmax];
+    alignas(16) float _y1[gnmodesmax];
+    alignas(16) float _y2[gnmodesmax];
     float _cdispl{0.f};
     float _cvel{0.f};
-    float _fc[gnmodesmax];
     float _fmin{50};
     float _fmax{5000};
     int _nmodes{0};
-    
 };
 
 } // namespace PHMResonCollision

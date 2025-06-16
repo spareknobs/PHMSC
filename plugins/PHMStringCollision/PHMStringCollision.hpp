@@ -29,10 +29,17 @@ private:
     float _cwout[gncollidersmax][gnmodesmax];
     float _y1[gnmodesmax];
     float _y2[gnmodesmax];
-    float _cpos[gncollidersmax];
-    float _cdispl[gncollidersmax];
+    int   _ncoll{0}; // number of colliders
+    float _cpos[gncollidersmax];   
+    float _cdispl[gncollidersmax]; // string displ @ collision point
+    float _mdispl[gncollidersmax]; // mass displ @ collision point
+    float _mvel[gncollidersmax]; // mass vel @ collision point
+    float _mass[gncollidersmax]; // if not rigid, colliders are point-like inertial masses connected to spring and damp
+    float _mstiff[gncollidersmax];
+    float _mdamp[gncollidersmax];
     float _cpmax{-1};
-    int   _ncoll{0};
+    float _mvar{0.f};
+    RGen& _rgen;
 };
 
 } // namespace PHMStringCollision

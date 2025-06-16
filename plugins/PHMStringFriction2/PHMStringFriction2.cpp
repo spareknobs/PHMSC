@@ -67,18 +67,21 @@ void PHMStringFriction2::next(int nSamples) {
         float v0_h = 0.f;
         
         for (int n=0; n<_nmodes; ++n) {
+            
             // free devel state
             _z_h[n] = zapgremlins( _X1[n] * _z[n] + _X2[n] * _zdot[n]);
-            _zdot_h[n] = _Y1[n] * _z[n] + _Y2[n] * _zdot[n]; 
+            _zdot_h[n] = zapgremlins( _Y1[n] * _z[n] + _Y2[n] * _zdot[n]); 
+            
             // free state @ finger
             y1_h += _Phi1[n] * _z_h[n];
+            
             // free state @ bow
             v0_h += _Phi0[n] * _zdot_h[n];
         }
         
         // friction force
         float F0 = 0.f;
-        if (mstate == stick){
+        if ( mstate == stick ){
             // compute force with dV = 0
             F0 = _C01 * (bow_vel - v0_h) + _C02 * y1_h;
             // Test: if F > Fmax -> slip
@@ -127,29 +130,14 @@ void PHMStringFriction2::next(int nSamples) {
         // apply forces
         for ( int n=0; n<_nmodes; ++n ) {
             _z[n] = zapgremlins(_z_h[n] + _Alpha0[n] * F0 + _Alpha1[n] * F1);
-            _zdot[n] = _zdot_h[n] + _Beta0[n]*F0 + _Beta1[n] * F1;
+            _zdot[n] = zapgremlins( _zdot_h[n] + _Beta0[n]*F0 + _Beta1[n] * F1);
             fbridge += _Kbridge[n] * _z[n];
         }
 
-        if (isnan(fbridge) || isinf(fbridge)){
-            //printf("warning - NaN detected, r \n"); 
-            reset();
-        }
-        
-        *vpout++ = zapgremlins(fbridge) * gain;
+        *vpout++ = zapgremlins(fbridge * gain);
 
     } while (--vs);
 }
-
-
-/*void PHMStringFriction2::NoteOn(const int acnote){
-    int vdelta = acnote - Tuning;
-    if (vdelta>=0){
-        vdelta = vdelta%24;
-        float vnormlen = 1.f / powf( 2.f, (float)(vdelta) / 12.f );
-        SetFingerPosNorm(vnormlen);
-    }
-}*/
 
 void PHMStringFriction2::reset(){
     std::memset(_z,0.f,sizeof(_z));
@@ -159,18 +147,21 @@ void PHMStringFriction2::reset(){
 }
 
 void PHMStringFriction2::UpdateFilterCoeffs(){
+
     float sr = sampleRate();
     float dt = 1.f / sr;
     float nyq = sr * 0.5f;
     float piL = pi / _L;
     float I = ( pi * powf( _dia, 4 ) ) / 64.f;  // inertia
     float T = 4.f * _f0 * _f0 * _L * _L * _rho;
-    _nmodes=0;
+    _nmodes = 0;
+
     //printf("---------------------------------------\n"); 
     for (int n=0; n<_nmodes_req; ++n) {       
+        
         float k = (n+1) * piL;
         float d = _d1 + _d2 * n * n;
-        float omega0 = sqrt( T / _rho*k*k + _E*I/_rho*k*k*k*k );
+        float omega0 = sqrt( T / _rho * k * k + _E * I / _rho * k * k * k * k );
         float omega = sqrt( omega0*omega0 - d*d );
         float vfreq = omega / 2.f / pi;
         
@@ -181,15 +172,15 @@ void PHMStringFriction2::UpdateFilterCoeffs(){
         
         _nmodes++;
         
-        float theta = omega*dt;
-        float R = expf(-d*dt);
+        float theta = omega * dt; // rad/samples
+        float R = expf( -d * dt );  
         
         // free devel coeffs
-        float vx1 = ( cosf(theta) + d/omega*sinf(theta) ) * R;
-        float vx2 = 1.f / omega*sinf(theta)*R;
+        float vx1 = ( cosf(theta) + d / omega * sinf(theta) ) * R;
+        float vx2 = 1.f / omega * sinf(theta) * R;
         float vx3 = 1.f / ( _rho * omega0 * omega0) * ( 1.f - vx1);
 
-        float vy1 = -(omega + d*d/omega) * sinf(omega*dt)*R;
+        float vy1 = -(omega + d*d/omega) * sinf(omega * dt) * R;
         float vy2 = ( cosf(omega * dt) - d/omega * sinf( omega * dt) ) * R;
         float vy3 = -1.f / ( omega0 * omega0 * _rho ) * vy1;
    

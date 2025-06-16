@@ -6,6 +6,7 @@ s.reboot;
 s.meter(0,2);
 )
 
+
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // buzzing
 (
@@ -20,7 +21,41 @@ s.meter(0,2);
 }.play;
 )
 
+// colliding masses on string
+(
+{
+	var trig = Impulse.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.01, 0.003,level:40,curve:-4),trig);
+	var out = PHMStringCollision.ar( exc, gain:4, f0:50, length:1.0, dispersion:2, d1:0.0001, d2:0.00001, posIn:0.23, posOut:0.13, thres:-0.1, c_stiff:2000, cpmin:0.01, cpmax:0.8, nmodes:200, ncoll:15, rand:0, rigid:0, mMass:0.01, mK:100, mD:0.00001,mvar:0.9 );
+	out = LeakDC.ar(out);
+	out = Limiter.ar(out, level:0.95, dur:0.1);
+	Out.ar(0,[out,out]);
+}.play;
+)
 
+// ruuumbles 2
+(
+{
+	var trig = Impulse.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.01, 0.003,level:40,curve:-4),trig);
+	var out = PHMStringCollision.ar( exc, gain:4, f0:50, length:1.0, dispersion:2, d1:0.0001, d2:0.00001, posIn:0.23, posOut:0.13, thres:-0.0001, c_stiff:2000, cpmin:0.01, cpmax:0.8, nmodes:200, ncoll:2, rand:0.3, rigid:0, mMass:0.01, mK:10, mD:0.00001,mvar:0.5 );
+	out = LeakDC.ar(out);
+	out = Limiter.ar(out, level:0.95, dur:0.1);
+	Out.ar(0,[out,out]);
+}.play;
+)
+
+// ruuumbles 3
+(
+{
+	var trig = Impulse.ar(0.3);
+	var exc = EnvGen.ar(Env.perc(0.01, 0.002,level:40,curve:-4),trig);
+	var out = PHMStringCollision.ar( exc, gain:4, f0:50, length:1.0, dispersion:1, d1:0.0001, d2:0.00001, posIn:0.43, posOut:0.23, thres:-0.00001, c_stiff:2000, cpmin:0.001, cpmax:0.9, nmodes:150, ncoll:10, rand:0, rigid:0, mMass:0.001, mK:200000, mD:0.00001,mvar:0.25 );
+	out = LeakDC.ar(out);
+	out = Limiter.ar(out, level:0.95, dur:0.1);
+	Out.ar(0,[out,out]);
+}.play;
+)
 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 // gonglike
