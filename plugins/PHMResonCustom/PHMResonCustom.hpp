@@ -9,7 +9,7 @@
 
 namespace PHMResonCustom {
 
-static const int gnmodesmax = 300;
+static const int gnmodesmax = 500;
                                                                                                  
 
 class PHMResonCustom : public SCUnit {

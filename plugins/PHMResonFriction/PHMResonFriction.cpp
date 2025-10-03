@@ -44,8 +44,8 @@ void PHMResonFriction::next(int nSamples) {
     _finger_pos = sc_clip(in0(3), 0.001f, 0.999f);
     const float fmin = sc_clip( in0(4), 20.f, nyq );
     const float fmax = sc_clip( in0(5), 20.f, nyq );
-    _d1 = sc_clip( in0(6), 0.0001f, 100.f);
-    _d2 = sc_clip( in0(7), 0.f, 1.f );
+    _d1 = sc_clip( in0(6), 0.00001f, 1000.f);
+    _d2 = sc_clip( in0(7), 0.f, 100.f );
     float gain = in0(8);
     _K = in0(9);    // finger stiff
     _nmodes_req = sc_clip( in0(10), 1, cmaxnmodes );
@@ -54,9 +54,9 @@ void PHMResonFriction::next(int nSamples) {
     UpdateFingerCoeffs();
 
     // update bow force - don't allow nonzero bow force with zero bow vel
-    float Fb = bow_pressure * (float)(bow_vel!=0.f);
+    float Fb = bow_pressure;// * (float)(bow_vel!=0.f);
     float Fmax = Fb * _Mu_s;
-
+    
     // noise gen
     RGen& rgen = *this->mParent->mRGen;                                                                                
     uint32 s1 = rgen.s1;
@@ -130,13 +130,8 @@ void PHMResonFriction::next(int nSamples) {
         // apply forces
         for ( int n=0; n<_nmodes; ++n ) {
             _z[n] = zapgremlins(_z_h[n] + _Alpha0[n] * F0 + _Alpha1[n] * F1);
-            _zdot[n] = _zdot_h[n] + _Beta0[n]*F0 + _Beta1[n] * F1;
+            _zdot[n] = zapgremlins(_zdot_h[n] + _Beta0[n]*F0 + _Beta1[n] * F1);
             fbridge += _Kbridge[n] * _z[n];
-        }
-
-        if (isnan(fbridge) || isinf(fbridge)){
-            //printf("warning - NaN detected, r \n"); 
-            reset();
         }
         
         *vpout++ = zapgremlins(fbridge) * gain;

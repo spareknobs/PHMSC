@@ -9,7 +9,7 @@
 namespace PHMResonFriction {
 
 static const int cmaxnmodes = 500;
-static constexpr float cBowForceThres = 0.002f;
+static constexpr float cBowForceThres = 0.0001f;
 
 class PHMResonFriction : public SCUnit {
 

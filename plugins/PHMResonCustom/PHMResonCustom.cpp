@@ -46,7 +46,7 @@ void PHMResonCustom::computeModes(const float d1,
         _b1[i] = sinf(omgsr) / omega;
         
         const float g = (i + 1) * pi;
-        _win[i] = _mags[i]; // * sinf(posin * g);  // Use the loaded magnitude and the pos?
+        _win[i] = _mags[i] * sinf(posin * g);  // Use the loaded magnitude and the pos?
         _cwin[i] = sinf(cposin * g);
        // Print("PHMResonCustom: %d a1: %f a2: %f b1: %f  win: %f\n", i, _a1[i],_a2[i],_b1[i], _win[i]);
     }
@@ -59,14 +59,14 @@ void PHMResonCustom::next(int nSamples) {
     
     // Control rate parameters
     const float fbufnum = in0(1);   
-    const float gain = sc_clip(in0(2), 0.f, 10.f);
-    const float d1 = sc_clip(in0(3), 0.00001f, 100.f);
+    const float gain = sc_clip(in0(2), 0.f, 20.f);
+    const float d1 = sc_clip(in0(3), 0.000000001f, 1000.f);
     const float d2 = sc_clip(in0(4), 0.0f, 1000.f);
     const float cthres = sc_clip(in0(5), -10.f, 0.f);
     const float cK = sc_clip(in0(6), 0.f, 5000.f);
-    const float posin = sc_clip(in0(7), 0.001f, 0.999f);
-    const float cposin = sc_clip(in0(8), 0.001f, 0.999f);
-    const float detune = sc_clip(in0(9), 0.25f, 4.f);
+    const float posin = sc_clip(in0(7), 0.0001f, 0.9999f);
+    const float cposin = sc_clip(in0(8), 0.0001f, 0.9999f);
+    const float detune = sc_clip(in0(9), 0.1f, 10.f);
     const int nmodes_req = sc_clip(static_cast<int>(in0(10)), 1, gnmodesmax);
 
     if (fbufnum != m_fbufnum) {
