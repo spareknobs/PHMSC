@@ -1,7 +1,7 @@
 # PHMSC
 ## A Physical Modeling Library for SC
 
-Author: spare knobs [2024]
+Author: Riccardo Marogna [2024-25]
 
 
 ### Requirements
