@@ -15,7 +15,7 @@ PHMFlue1::PHMFlue1() {
     std::memset(_y2,0.f,sizeof(_y2));
     mCalcFunc = make_calc_function<PHMFlue1, &PHMFlue1::next>();
     next(1);
-    printf("loading: PHMFlue1 v 0.1 \n");
+    //printf("loading: PHMFlue1 v 0.1 \n");
 }
 
 void PHMFlue1::computeModes( int& nmodes, 

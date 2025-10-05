@@ -15,8 +15,8 @@ PHMResonCollision::PHMResonCollision() {
     _fmax = 0.f;
     mCalcFunc = make_calc_function<PHMResonCollision, &PHMResonCollision::next>();
     next(1);
-    printf("PHMResonCollision v: %.1f\n", VERSION);
-    printf("Optimized loop: %d\n", OPTIMIZE_LOOP);
+    // printf("PHMResonCollision v: %.1f\n", VERSION);
+    // printf("Optimized loop: %d\n", OPTIMIZE_LOOP);
 }
 
 void PHMResonCollision::computeRandomModes( const float fmin,
