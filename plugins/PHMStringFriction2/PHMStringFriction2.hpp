@@ -1,6 +1,7 @@
 // PluginPHMStringFriction2.hpp
-// String-Bow model adapted from Demoucron's violin model 
-// (....)
+// String-Bow model adapted from:
+//  Matthias Demoucron, "On the control of virtual violins" (2008)
+// https://theses.hal.science/tel-00349920/document
 
 #pragma once
 

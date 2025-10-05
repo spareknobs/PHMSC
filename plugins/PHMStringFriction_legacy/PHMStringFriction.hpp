@@ -1,5 +1,3 @@
-// PluginPHMStringFriction.hpp
-// rm (spare knobs@site.com)
 
 #pragma once
 
