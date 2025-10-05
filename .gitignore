@@ -1,0 +1,8 @@
+Debug
+build
+leggimi.txt
+todo.txt
+*.pdf
+.ipynb_checkpoints
+PHMSC.code-workspace
+.DS_Store
