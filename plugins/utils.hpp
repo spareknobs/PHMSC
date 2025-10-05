@@ -27,7 +27,7 @@ static void computeStringModes( float* pA1,
         float b1,a1,a2,win,wout,cwin,cwout;
         
         if ( fc > nyq ){
-            printf("fc exceeds maxfreq\n");
+           // printf("fc exceeds maxfreq\n");
             nmodes=i;
             //printf("nmodes reduced to: %d", nmodes);
             //printf("max freq: %f", freq );    
