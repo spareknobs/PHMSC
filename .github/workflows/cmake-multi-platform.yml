@@ -29,51 +29,39 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies (Linux only)
+      # Minimal dependencies for plugin-only build
+      - name: Install minimal dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
-          sudo apt-get install -y \
-            cmake git build-essential libsndfile1-dev libasound2-dev \
-            libavahi-client-dev libreadline-dev libncurses5-dev libfftw3-dev \
-            libxt-dev pkg-config
+          sudo apt-get install -y build-essential cmake pkg-config
 
-      - name: Install dependencies (macOS only)
+      - name: Install minimal dependencies (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           brew update
-          brew install cmake pkg-config libsndfile fftw
+          brew install cmake pkg-config
 
+      # Set paths
       - name: Set build directories
         id: paths
         shell: bash
         run: |
           echo "sc-dir=${{ github.workspace }}/SuperCollider" >> "$GITHUB_OUTPUT"
-          echo "sc-build-dir=${{ github.workspace }}/SuperCollider/build" >> "$GITHUB_OUTPUT"
           echo "plugin-build-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
 
-      - name: Cache SuperCollider build
-        id: cache-sc
-        uses: actions/cache@v4
-        with:
-          path: |
-            ${{ steps.paths.outputs.sc-dir }}
-          key: ${{ runner.os }}-supercollider-${{ matrix.build_type }}-v1
-          restore-keys: |
-            ${{ runner.os }}-supercollider-
-
-      - name: Clone SuperCollider (if not cached)
-        if: steps.cache-sc.outputs.cache-hit != 'true'
+      # Clone SuperCollider repo (headers only)
+      - name: Clone SuperCollider
         run: |
           git clone --depth=1 https://github.com/supercollider/supercollider.git ${{ steps.paths.outputs.sc-dir }}
 
-      - name: Build and install SuperCollider (if not cached)
-        if: steps.cache-sc.outputs.cache-hit != 'true'
+      # Optional: ensure submodules are initialized (some plugin headers may live there)
+      - name: Initialize submodules
         run: |
-          cmake -S ${{ steps.paths.outputs.sc-dir }} -B ${{ steps.paths.outputs.sc-build-dir }} \
-            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          cmake --build ${{ steps.paths.outputs.sc-build-dir }} --target install --config ${{ matrix.build_type }}
+          cd ${{ steps.paths.outputs.sc-dir }}
+          git submodule update --init --recursive
 
+      # Configure plugin
       - name: Configure plugin with CMake
         run: >
           cmake -B ${{ steps.paths.outputs.plugin-build-dir }}
@@ -84,13 +72,16 @@ jobs:
           -DSC_PLUGIN_DIR=${{ steps.paths.outputs.plugin-build-dir }}/plugins
           -S ${{ github.workspace }}
 
+      # Build plugin
       - name: Build plugin
         run: cmake --build ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
 
-      - name: Run tests (if any)
+      # Run tests (if any)
+      - name: Run tests
         working-directory: ${{ steps.paths.outputs.plugin-build-dir }}
         run: ctest --build-config ${{ matrix.build_type }} || echo "No tests defined"
 
+      # Upload plugin artifacts
       - name: Upload built plugins
         uses: actions/upload-artifact@v4
         with:
