@@ -1,4 +1,4 @@
-class:: PHMStringFriction2
+class:: PHMStringFriction
 summary:: bowed string model
 related:: TODO
 categories:: UGens>TODO
@@ -23,6 +23,6 @@ examples::
 
 code::
 
-{ PHMStringFriction2.ar(/* TODO */) }.play
+{ PHMStringFriction.ar(/* TODO */) }.play
 
 ::

@@ -1,13 +1,13 @@
 
-#include "PHMStringFriction2.hpp"
+#include "PHMStringFriction.hpp"
 #include "../utils.hpp"
 
 static InterfaceTable* ft;
 
-namespace PHMStringFriction2 {
+namespace PHMStringFriction {
 
 
-PHMStringFriction2::PHMStringFriction2() {
+PHMStringFriction::PHMStringFriction() {
     std::memset(_X2,0.f,sizeof(_X2));
     std::memset(_X3,0.f,sizeof(_X3));
     std::memset(_Y1,0.f,sizeof(_Y1));
@@ -24,11 +24,11 @@ PHMStringFriction2::PHMStringFriction2() {
     std::memset(_zdot,0.f,sizeof(_zdot));
     std::memset(_z_h,0.f,sizeof(_z_h));
     std::memset(_zdot_h,0.f,sizeof(_zdot_h));
-    mCalcFunc = make_calc_function<PHMStringFriction2, &PHMStringFriction2::next>();
+    mCalcFunc = make_calc_function<PHMStringFriction, &PHMStringFriction::next>();
     next(1);
 }
 
-void PHMStringFriction2::next(int nSamples) {
+void PHMStringFriction::next(int nSamples) {
     
     float* vpout = out(0);
     float sr = sampleRate();
@@ -139,14 +139,14 @@ void PHMStringFriction2::next(int nSamples) {
     } while (--vs);
 }
 
-void PHMStringFriction2::reset(){
+void PHMStringFriction::reset(){
     std::memset(_z,0.f,sizeof(_z));
     std::memset(_zdot,0.f,sizeof(_zdot));
     std::memset(_z_h,0.f,sizeof(_z_h));
     std::memset(_zdot_h,0.f,sizeof(_zdot_h));
 }
 
-void PHMStringFriction2::UpdateFilterCoeffs(){
+void PHMStringFriction::UpdateFilterCoeffs(){
 
     float sr = sampleRate();
     float dt = 1.f / sr;
@@ -199,7 +199,7 @@ void PHMStringFriction2::UpdateFilterCoeffs(){
     }
 }
 
-void PHMStringFriction2::UpdateFingerCoeffs(){
+void PHMStringFriction::UpdateFingerCoeffs(){
     _A01=0.f;
     _A11=0.f;
     _B00=0.f;
@@ -256,5 +256,5 @@ void PHMStringFriction2::UpdateFingerCoeffs(){
 PluginLoad(PHMStringFriction2UGens) {
     // Plugin magic
     ft = inTable;
-    registerUnit<PHMStringFriction2::PHMStringFriction2>(ft, "PHMStringFriction2", false);
+    registerUnit<PHMStringFriction::PHMStringFriction>(ft, "PHMStringFriction", false);
 }

@@ -1,4 +1,3 @@
-// PluginPHMResonCollision.cpp
 
 #include "PHMResonCollision.hpp"
 #include "../utils.hpp"

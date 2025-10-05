@@ -13,7 +13,7 @@ PHMStringCollision::PHMStringCollision() : _rgen(*mParent->mRGen) {
     std::memset(_mvel,0.f,sizeof(_mvel));
     mCalcFunc = make_calc_function<PHMStringCollision, &PHMStringCollision::next>();
     next(1);
-    printf("loading: PHMStringCollision v 0.2 \n");
+    //printf("loading: PHMStringCollision v 0.2 \n");
 }
 
 void PHMStringCollision::next(int nSamples) {

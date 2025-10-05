@@ -1,4 +1,3 @@
-// PluginPHMResonCustom.cpp
 
 #include "PHMResonCustom.hpp"
 #include "../utils.hpp"

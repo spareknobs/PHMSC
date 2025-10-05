@@ -1,5 +1,3 @@
-// PluginPHMResonCustom.hpp
-// rm (spare knobs@site.com)
 
 #pragma once
 

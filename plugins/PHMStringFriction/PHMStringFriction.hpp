@@ -1,6 +1,5 @@
-// PluginPHMStringFriction2.hpp
 // String-Bow model adapted from:
-//  Matthias Demoucron, "On the control of virtual violins" (2008)
+// Matthias Demoucron, "On the control of virtual violins" (2008)
 // https://theses.hal.science/tel-00349920/document
 
 #pragma once
@@ -8,15 +7,15 @@
 #include "SC_PlugIn.hpp"
 #include "SC_Unit.h"
 
-namespace PHMStringFriction2 {
+namespace PHMStringFriction {
 
 static const int cmaxnmodes = 200;
 static constexpr float cBowForceThres = 0.002f;
 
-class PHMStringFriction2 : public SCUnit {
+class PHMStringFriction : public SCUnit {
 
 public:
-    PHMStringFriction2();
+    PHMStringFriction();
 
 private:
     void next(int nSamples);
@@ -81,4 +80,4 @@ private:
     float _C12{0.f};
 };
 
-} // namespace PHMStringFriction2
+} // namespace PHMStringFriction
