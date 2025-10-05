@@ -1,4 +1,5 @@
 #include "PHMCoupledStrings.hpp"
+#include <cstring>
 
 static InterfaceTable* ft;
 
