@@ -1,6 +1,7 @@
 // PluginPHMStringCollision.cpp
 
 #include "PHMStringCollision.hpp"
+#include <cstring>
 
 static InterfaceTable* ft;
 
