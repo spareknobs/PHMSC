@@ -13,12 +13,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, macos-latest, windows-latest]
         build_type: [Release]
         include:
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
           - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
@@ -34,6 +37,12 @@ jobs:
             cmake git build-essential libsndfile1-dev libasound2-dev \
             libavahi-client-dev libreadline-dev libncurses5-dev libfftw3-dev \
             libxt-dev pkg-config
+
+      - name: Install dependencies (macOS only)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake pkg-config libsndfile fftw
 
       - name: Set build directories
         id: paths
@@ -89,3 +98,4 @@ jobs:
           path: |
             ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.so
             ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.dll
+            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.scx
