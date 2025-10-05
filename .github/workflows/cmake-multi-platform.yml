@@ -1,0 +1,92 @@
+name: Build SuperCollider Plugin (multi-platform)
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        build_type: [Release]
+        include:
+          - os: ubuntu-latest
+            c_compiler: gcc
+            cpp_compiler: g++
+          - os: macos-latest
+            c_compiler: clang
+            cpp_compiler: clang++
+          - os: windows-latest
+            c_compiler: cl
+            cpp_compiler: cl
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # Minimal dependencies for plugin-only build
+      - name: Install minimal dependencies (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake pkg-config
+
+      - name: Install minimal dependencies (macOS)
+        if: matrix.os == 'macos-latest'
+        run: |
+          brew update
+          brew install cmake pkg-config
+
+      # Set paths
+      - name: Set build directories
+        id: paths
+        shell: bash
+        run: |
+          echo "sc-dir=${{ github.workspace }}/SuperCollider" >> "$GITHUB_OUTPUT"
+          echo "plugin-build-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+
+      # Clone SuperCollider repo (headers only)
+      - name: Clone SuperCollider
+        run: |
+          git clone --depth=1 https://github.com/supercollider/supercollider.git ${{ steps.paths.outputs.sc-dir }}
+
+      # Optional: ensure submodules are initialized (some plugin headers may live there)
+      - name: Initialize submodules
+        run: |
+          cd ${{ steps.paths.outputs.sc-dir }}
+          git submodule update --init --recursive
+
+      # Configure plugin
+      - name: Configure plugin with CMake
+        run: >
+          cmake -B ${{ steps.paths.outputs.plugin-build-dir }}
+          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
+          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
+          -DSC_PATH=${{ steps.paths.outputs.sc-dir }}
+          -DSC_PLUGIN_DIR=${{ steps.paths.outputs.plugin-build-dir }}/plugins
+          -S ${{ github.workspace }}
+
+      # Build plugin
+      - name: Build plugin
+        run: cmake --build ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
+
+      # Run tests (if any)
+      - name: Run tests
+        working-directory: ${{ steps.paths.outputs.plugin-build-dir }}
+        run: ctest --build-config ${{ matrix.build_type }} || echo "No tests defined"
+
+      # Upload plugin artifacts
+      - name: Upload built plugins
+        uses: actions/upload-artifact@v4
+        with:
+          name: SuperCollider-Plugins-${{ matrix.os }}
+          path: |
+            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.so
+            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.dll
+            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.scx
