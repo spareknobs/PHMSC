@@ -14,8 +14,8 @@ PHMCoupledStrings::PHMCoupledStrings() {
     
     mCalcFunc = make_calc_function<PHMCoupledStrings, &PHMCoupledStrings::next>();
     next(1);
-    printf("loading: PHMCoupledStrings v 0.1 \n");
-    printf("n outs: %d\n",this->mNumOutputs);
+    //printf("loading: PHMCoupledStrings v 0.1 \n");
+    //printf("n outs: %d\n",this->mNumOutputs);
 }
 
 void PHMCoupledStrings::compute_filterbank( fbank& fb,
