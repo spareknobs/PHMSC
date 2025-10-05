@@ -1,5 +1,3 @@
-// PluginPHMStringFriction.cpp
-// rm (spare knobs@site.com)
 
 #include "PHMStringFriction.hpp"
 #include "../utils.hpp"
