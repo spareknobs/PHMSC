@@ -37,9 +37,11 @@ private:
     float _mass[gncollidersmax]; // if not rigid, colliders are point-like inertial masses connected to spring and damp
     float _mstiff[gncollidersmax];
     float _mdamp[gncollidersmax];
+    float _fc[gncollidersmax]; // collision forces
     float _cpmax{-1};
     float _mvar{0.f};
     RGen& _rgen;
+    
 };
 
 } // namespace PHMStringCollision

@@ -3,6 +3,7 @@
 
 #include "SC_PlugIn.hpp"
 #include "PHMString.hpp"
+#include <cstring>
 
 static InterfaceTable* ft;
 

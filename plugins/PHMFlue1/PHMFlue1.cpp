@@ -4,6 +4,7 @@
 // riccardo marogna 2024
 
 #include "PHMFlue1.hpp"
+#include <cstring>
 
 static InterfaceTable* ft;
 

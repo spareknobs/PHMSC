@@ -1,6 +1,7 @@
 
 #include "PHMResonFriction.hpp"
 #include "../utils.hpp"
+#include <cstring>
 
 static InterfaceTable* ft;
 

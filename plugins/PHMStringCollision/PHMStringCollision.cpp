@@ -136,19 +136,18 @@ void PHMStringCollision::next(int nSamples) {
         float x = *vpin++;
         
         // collision forces
-        float fc[ncoll]; 
-        std::memset(fc,0.f,sizeof(fc));
+        std::memset(_fc,0.f,sizeof(_fc));
         for (int c=0; c < ncoll; ++c) {
             float vdelta = _mdispl[c] + cThres - _cdispl[c];
             if ( vdelta > 0 ){  // colliders are placed below the string
-                fc[c] = vdelta * cK; // force is upwards
+                _fc[c] = vdelta * cK; // force is upwards
             }
         }
 
         // update masses
         if (rigid==false){
             for (int c=0; c < ncoll; ++c) {
-                    float fsum = - _mstiff[c] * _mdispl[c] - _mvel[c] * _mdamp[c] - fc[c];
+                    float fsum = - _mstiff[c] * _mdispl[c] - _mvel[c] * _mdamp[c] - _fc[c];
                     _mvel[c] += sr1 / _mass[c] * fsum;
                     _mdispl[c] += sr1  * _mvel[c];
                     _mdispl[c] = sc_clip(_mdispl[c], -1.f, 1.0);
@@ -165,7 +164,7 @@ void PHMStringCollision::next(int nSamples) {
             float wout = _wout[n];
             float fcw = 0.f;
             for (int c=0; c < ncoll; ++c) {
-                fcw += _cwin[c][n] * fc[c];
+                fcw += _cwin[c][n] * _fc[c];
             }
 
             float y = b1 * ( win * x + fcw ) + a1 * _y1[n] + a2 * _y2[n];
