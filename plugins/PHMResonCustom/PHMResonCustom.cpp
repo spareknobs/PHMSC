@@ -2,7 +2,7 @@
 #include "PHMResonCustom.hpp"
 #include "../utils.hpp"
 #include <fstream>
-#include <string>
+#include <cstring>
 
 static InterfaceTable* ft;
 
