@@ -29,82 +29,66 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Minimal dependencies for plugin-only build
+      # --- Dependencies ---
       - name: Install minimal dependencies (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake pkg-config
-
       - name: Install minimal dependencies (macOS)
         if: matrix.os == 'macos-latest'
         run: |
           brew update
           brew install cmake pkg-config
 
-      # Set paths
+      # --- Paths ---
       - name: Set build directories
         id: paths
         shell: bash
         run: |
           echo "sc-dir=${{ github.workspace }}/SuperCollider" >> "$GITHUB_OUTPUT"
           echo "plugin-build-dir=${{ github.workspace }}/build" >> "$GITHUB_OUTPUT"
+          echo "install-dir=${{ github.workspace }}/install" >> "$GITHUB_OUTPUT"
 
-      # Clone SuperCollider repo (headers only)
+      # --- Clone SuperCollider headers ---
       - name: Clone SuperCollider
-        run: |
-          git clone --depth=1 https://github.com/supercollider/supercollider.git ${{ steps.paths.outputs.sc-dir }}
+        run: git clone --depth=1 https://github.com/supercollider/supercollider.git ${{ steps.paths.outputs.sc-dir }}
 
-      # Optional: ensure submodules are initialized (some plugin headers may live there)
       - name: Initialize submodules
         run: |
           cd ${{ steps.paths.outputs.sc-dir }}
           git submodule update --init --recursive
 
-      # Configure plugin
+      # --- Configure ---
       - name: Configure plugin with CMake
+        shell: bash
         run: >
           cmake -B ${{ steps.paths.outputs.plugin-build-dir }}
           -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
           -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
           -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
           -DSC_PATH=${{ steps.paths.outputs.sc-dir }}
-          -DSC_PLUGIN_DIR=${{ steps.paths.outputs.plugin-build-dir }}/plugins
+          -DCMAKE_INSTALL_PREFIX=${{ steps.paths.outputs.install-dir }}
           -S ${{ github.workspace }}
 
-      # Build plugin
+      # --- Build ---
       - name: Build plugin
         run: cmake --build ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
 
-      # Run tests (if any)
-      - name: Run tests
-        working-directory: ${{ steps.paths.outputs.plugin-build-dir }}
-        run: ctest --build-config ${{ matrix.build_type }} || echo "No tests defined"
+      # --- Install ---
+      - name: Install plugin (reproduce CMake install layout)
+        run: cmake --install ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
 
-      # Ensure plugins dir exists and inspect contents
-      - name: Ensure and list plugin directories
+      # --- Verify structure ---
+      - name: List installed structure
         shell: bash
         run: |
-          echo "Plugin build dir: ${{ steps.paths.outputs.plugin-build-dir }}"
-          mkdir -p ${{ steps.paths.outputs.plugin-build-dir }}/plugins
-          echo "Listing build directory contents recursively:"
-          if [[ "$RUNNER_OS" == "Windows" ]]; then
-            echo "Windows detected — using dir command"
-            cmd.exe /c "dir /s ${{ steps.paths.outputs.plugin-build-dir }}"
-          else
-            echo "Unix detected — using ls"
-            ls -Rlah ${{ steps.paths.outputs.plugin-build-dir }} || true
-          fi
-          echo "Searching for built plugin files (.so, .dll, .scx):"
-          find ${{ steps.paths.outputs.plugin-build-dir }} -type f \( -name "*.so" -o -name "*.dll" -o -name "*.scx" \) || true
+          echo "Installed plugin package structure:"
+          ls -Rlah ${{ steps.paths.outputs.install-dir }}
 
-      # Upload all discovered plugin artifacts (cross-platform)
-      - name: Upload built plugins
+      # --- Upload the complete install folder ---
+      - name: Upload built plugin package
         uses: actions/upload-artifact@v4
         with:
-          name: SuperCollider-Plugins-${{ matrix.os }}
-          path: |
-            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.so
-            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.dll
-            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.scx
-
+          name: PHMSC-${{ matrix.os }}
+          path: ${{ steps.paths.outputs.install-dir }}
