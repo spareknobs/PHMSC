@@ -81,18 +81,26 @@ jobs:
         working-directory: ${{ steps.paths.outputs.plugin-build-dir }}
         run: ctest --build-config ${{ matrix.build_type }} || echo "No tests defined"
 
-      - name: Ensure plugins dir exists
+      # Ensure plugins dir exists and inspect contents
+      - name: Ensure and list plugin directories
         run: |
+          echo "Plugin build dir: ${{ steps.paths.outputs.plugin-build-dir }}"
+          echo "Searching for built plugin files..."
           mkdir -p ${{ steps.paths.outputs.plugin-build-dir }}/plugins
-          echo "Listing contents of plugins directory:"
-          ls -Rlah ${{ steps.paths.outputs.plugin-build-dir }}/plugins
-        
-      # Upload plugin artifacts
+          echo "Listing the full build directory:"
+          ls -Rlah ${{ steps.paths.outputs.plugin-build-dir }} || true
+          echo "Listing potential plugin output directories:"
+          find ${{ steps.paths.outputs.plugin-build-dir }} -type d -name "plugins" || true
+          echo "Searching for built plugin files (.so, .dll, .scx):"
+          find ${{ steps.paths.outputs.plugin-build-dir }} -type f \( -name "*.so" -o -name "*.dll" -o -name "*.scx" \) || true
+
+      # Upload all discovered plugin artifacts (cross-platform)
       - name: Upload built plugins
         uses: actions/upload-artifact@v4
         with:
           name: SuperCollider-Plugins-${{ matrix.os }}
           path: |
-            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.so
-            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.dll
-            ${{ steps.paths.outputs.plugin-build-dir }}/plugins/**/*.scx
+            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.so
+            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.dll
+            ${{ steps.paths.outputs.plugin-build-dir }}/**/*.scx
+
