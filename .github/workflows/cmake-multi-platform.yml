@@ -59,17 +59,28 @@ jobs:
           cd ${{ steps.paths.outputs.sc-dir }}
           git submodule update --init --recursive
 
-      # --- Configure ---
       - name: Configure plugin with CMake
         shell: bash
-        run: >
-          cmake -B ${{ steps.paths.outputs.plugin-build-dir }}
-          -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-          -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
-          -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
-          -DSC_PATH=${{ steps.paths.outputs.sc-dir }}
-          -DCMAKE_INSTALL_PREFIX=${{ steps.paths.outputs.install-dir }}
-          -S ${{ github.workspace }}
+        run: |
+          # Normalize paths to use forward slashes for CMake (Windows-safe)
+          SRC_DIR=$(echo "${{ github.workspace }}" | sed 's|\\|/|g')
+          BUILD_DIR=$(echo "${{ steps.paths.outputs.plugin-build-dir }}" | sed 's|\\|/|g')
+          SC_DIR=$(echo "${{ steps.paths.outputs.sc-dir }}" | sed 's|\\|/|g')
+          INSTALL_DIR=$(echo "${{ steps.paths.outputs.install-dir }}" | sed 's|\\|/|g')
+
+          echo "Source directory: $SRC_DIR"
+          echo "Build directory: $BUILD_DIR"
+          echo "SuperCollider headers: $SC_DIR"
+          echo "Install directory: $INSTALL_DIR"
+
+          cmake -B "$BUILD_DIR" \
+                -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }} \
+                -DCMAKE_C_COMPILER=${{ matrix.c_compiler }} \
+                -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+                -DSC_PATH="$SC_DIR" \
+                -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
+                -S "$SRC_DIR"
+
 
       # --- Build ---
       - name: Build plugin
