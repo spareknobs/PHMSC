@@ -83,14 +83,18 @@ jobs:
 
       # Ensure plugins dir exists and inspect contents
       - name: Ensure and list plugin directories
+        shell: bash
         run: |
           echo "Plugin build dir: ${{ steps.paths.outputs.plugin-build-dir }}"
-          echo "Searching for built plugin files..."
           mkdir -p ${{ steps.paths.outputs.plugin-build-dir }}/plugins
-          echo "Listing the full build directory:"
-          ls -Rlah ${{ steps.paths.outputs.plugin-build-dir }} || true
-          echo "Listing potential plugin output directories:"
-          find ${{ steps.paths.outputs.plugin-build-dir }} -type d -name "plugins" || true
+          echo "Listing build directory contents recursively:"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            echo "Windows detected — using dir command"
+            cmd.exe /c "dir /s ${{ steps.paths.outputs.plugin-build-dir }}"
+          else
+            echo "Unix detected — using ls"
+            ls -Rlah ${{ steps.paths.outputs.plugin-build-dir }} || true
+          fi
           echo "Searching for built plugin files (.so, .dll, .scx):"
           find ${{ steps.paths.outputs.plugin-build-dir }} -type f \( -name "*.so" -o -name "*.dll" -o -name "*.scx" \) || true
 
