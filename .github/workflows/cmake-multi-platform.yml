@@ -41,7 +41,7 @@ jobs:
           brew update
           brew install cmake pkg-config
 
-      # --- Paths ---
+      # --- Set paths ---
       - name: Set build directories
         id: paths
         shell: bash
@@ -56,13 +56,13 @@ jobs:
 
       - name: Initialize submodules
         run: |
-          cd ${{ steps.paths.outputs.sc-dir }}
+          cd "${{ steps.paths.outputs.sc-dir }}"
           git submodule update --init --recursive
 
+      # --- Configure ---
       - name: Configure plugin with CMake
         shell: bash
         run: |
-          # Normalize paths to use forward slashes for CMake (Windows-safe)
           SRC_DIR=$(echo "${{ github.workspace }}" | sed 's|\\|/|g')
           BUILD_DIR=$(echo "${{ steps.paths.outputs.plugin-build-dir }}" | sed 's|\\|/|g')
           SC_DIR=$(echo "${{ steps.paths.outputs.sc-dir }}" | sed 's|\\|/|g')
@@ -81,23 +81,46 @@ jobs:
                 -DCMAKE_INSTALL_PREFIX="$INSTALL_DIR" \
                 -S "$SRC_DIR"
 
-
       # --- Build ---
       - name: Build plugin
-        run: cmake --build ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
-
-      # --- Install ---
-      - name: Install plugin (reproduce CMake install layout)
-        run: cmake --install ${{ steps.paths.outputs.plugin-build-dir }} --config ${{ matrix.build_type }}
-
-      # --- Verify structure ---
-      - name: List installed structure
         shell: bash
         run: |
-          echo "Installed plugin package structure:"
-          ls -Rlah ${{ steps.paths.outputs.install-dir }}
+          BUILD_DIR=$(echo "${{ steps.paths.outputs.plugin-build-dir }}" | sed 's|\\|/|g')
+          cmake --build "$BUILD_DIR" --config ${{ matrix.build_type }}
 
-      # --- Upload the complete install folder ---
+      # --- Install ---
+      - name: Install plugin
+        shell: bash
+        run: |
+          BUILD_DIR=$(echo "${{ steps.paths.outputs.plugin-build-dir }}" | sed 's|\\|/|g')
+          cmake --install "$BUILD_DIR" --config ${{ matrix.build_type }}
+
+      # --- Flatten nested plugin folders ---
+      - name: Flatten nested plugin directories
+        shell: bash
+        run: |
+          INSTALL_DIR=$(echo "${{ steps.paths.outputs.install-dir }}" | sed 's|\\|/|g')
+          echo "Flattening structure in: $INSTALL_DIR"
+          cd "$INSTALL_DIR/plugins" || exit 0
+          for d in */*/; do
+            parent=$(dirname "$d")
+            child=$(basename "$d")
+            if [ "$parent" == "$child" ]; then
+              echo "Flattening $d -> $parent/"
+              mv "$d"* "$parent"/ 2>/dev/null || true
+              rm -rf "$d"
+            fi
+          done
+
+      # --- Verify ---
+      - name: List installed plugin structure
+        shell: bash
+        run: |
+          INSTALL_DIR=$(echo "${{ steps.paths.outputs.install-dir }}" | sed 's|\\|/|g')
+          echo "Installed plugin package structure:"
+          ls -Rlah "$INSTALL_DIR" || true
+
+      # --- Upload artifact ---
       - name: Upload built plugin package
         uses: actions/upload-artifact@v4
         with:
