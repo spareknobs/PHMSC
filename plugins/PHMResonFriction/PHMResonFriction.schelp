@@ -1,7 +1,7 @@
 class:: PHMResonFriction
 summary:: friction model, from Demoucron
 related:: TODO
-categories:: UGens>TODO
+categories:: UGens>PhysicalModels
 
 description::
 

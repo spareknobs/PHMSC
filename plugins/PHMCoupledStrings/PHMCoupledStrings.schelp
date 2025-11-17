@@ -1,7 +1,7 @@
 class:: PHMCoupledStrings
-summary:: colliding string
+summary:: TODO
 related:: TODO
-categories:: UGens>TODO
+categories:: UGens>PhysicalModels
 
 description::
 
@@ -10,9 +10,7 @@ colliding string
 
 classmethods::
 
-method::ar, kr
-
-argument::TODO
+method::ar
 
 argument::TODO
 
@@ -21,6 +19,18 @@ examples::
 
 code::
 
-{ PHMCoupledStrings.ar(/* TODO */) }.play
+// sitar-like
+(
+{
+	//var trig = Dust.ar(2);
+	var trig = Impulse.ar(1);
+	var cpos2 = 0.11; //LFNoise1.kr(1.5).range(0,1);
+	var exc = EnvGen.ar(Env.perc(0.001, 0.0001,level:100,curve:1),trig);
+	var out = PHMCoupledStrings.ar( exc, gain:1, f1:140, f2:145, length:0.8, d11:0.001, d12:0.0001, d21:0.0005, d22:0.00001, dispersion:0.0, posin:0.23, posout:0.3, c_stiff:100, c_pos1:0.2, c_pos2:cpos2, nmodes:100 );
+	out = Limiter.ar(out, level:0.8, dur:0.1);
+	Out.ar(0,out);
+}.play;
+)
+
 
 ::

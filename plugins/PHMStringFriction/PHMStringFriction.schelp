@@ -1,7 +1,8 @@
 class:: PHMStringFriction
-summary:: bowed string model
-related:: TODO
-categories:: UGens>TODO
+summary:: Bowed string / friction interaction model — adapted from Demoucron
+
+related:: PHMResonFriction, PHMResonCollision
+categories:: UGens>PhysicalModels
 
 description::
 
@@ -12,17 +13,49 @@ https://theses.hal.science/tel-00349920/document
 
 classmethods::
 
-method::ar, kr
+method:: ar, kr
 
-argument::TODO
+method::ar
+'audio', vel, pressure, bowpos, fingerpos, f0, d1, d2, gain, fingerK, nmodes
 
-argument::TODO
+arguments::
 
+argument::vel
+bow velocity
+
+argument::pressure
+
+argument::bowpos
+Bowing position along the string (0..1). Changes spectral content by weighting modes.
+
+argument::fingerpos
+
+argument::f0
+
+argument::d1
+Global damping / loss factor for the resonator. Larger values shorten decay.
+
+argument::d2
+Freq dependent damping / loss factor for the resonator. Larger values shorten decay.
+
+argument::gain
+Output gain multiplier.
 
 examples::
 
 code::
 
-{ PHMStringFriction.ar(/* TODO */) }.play
+(
+{
+	var vel = LFNoise2.kr(0.5).range(0.1,0.6);
+	var bowpos = LFNoise2.kr(1).range(0.2,0.3);
+	var pressure = LFNoise2.kr(3.5).range(0.9,1.1);
+	var out = PHMStringFriction.ar(vel:vel, pressure:pressure, bowpos:bowpos,fingerpos:0.7, f0:60.0, d1:0.1, d2:0.2,  gain:0.1, nmodes:100);
+	out = LeakDC.ar(out);
+	out = Limiter.ar(out, level:0.8, dur:0.1);
+	Out.ar(0,[out,out]);
+}.play;
+)
+
 
 ::

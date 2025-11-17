@@ -1,7 +1,7 @@
 class:: PHMFlue1
 summary:: simple flue model
 related:: PHMString, PHMStringCollision
-categories:: UGens>Physical Modeling
+categories:: UGens>PhysicalModels
 
 description::
 
