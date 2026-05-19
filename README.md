@@ -13,7 +13,7 @@ Author: Riccardo Marogna [2024-25]
 
 Clone the project:
 
-    git clone https://github.com/spare knobs/PHMSC
+    git clone https://github.com/spareknobs/PHMSC
     cd PHMSC
     mkdir build
     cd build
