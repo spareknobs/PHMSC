@@ -76,9 +76,9 @@ void PHMFlue1::next(int nSamples) {
 	int vs = nSamples;
     const float* vpin = input;
     float* vpout = outbuf;
-    RGen& rgen = *this->mParent->mRGen;                                                                                \
-    uint32 s1 = rgen.s1;                                                                                               \
-    uint32 s2 = rgen.s2;                                                                                               \
+    RGen& rgen = *this->mParent->mRGen;                                                                            
+    uint32 s1 = rgen.s1;
+    uint32 s2 = rgen.s2;
     uint32 s3 = rgen.s3;
     
     do {

@@ -1,11 +1,12 @@
 class:: PHMStringCollision
-summary:: colliding string
-related:: TODO
+summary:: modal string + collisions
+related:: PHMResonFriction, PHMResonCollision
 categories:: UGens>PhysicalModels
 
 description::
 
-colliding string model
+Physical model of a linear string colliding against a set of point-like interactors.
+These interactors can be forced at a fixed position, or free to move.
 
 
 classmethods::

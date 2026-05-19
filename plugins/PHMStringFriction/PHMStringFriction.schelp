@@ -1,12 +1,12 @@
 class:: PHMStringFriction
-summary:: Bowed string / friction interaction model — adapted from Demoucron
+summary:: Modal String excited by Friction model
 
 related:: PHMResonFriction, PHMResonCollision
 categories:: UGens>PhysicalModels
 
 description::
 
-String-Bow model adapted from:
+Modal String excited by friction force.  Adapted from:
 Matthias Demoucron, "On the control of virtual violins" (2008)
 https://theses.hal.science/tel-00349920/document
 
